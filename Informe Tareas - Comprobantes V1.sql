@@ -13,7 +13,7 @@ SELECT "Numero",
        "F. Valorizada",
        "Facturable",
        "Importe",
-"Importe Proveedor",
+		"Importe Proveedor",
 	   (SELECT DCO_IMPORTE_SALDO FROM DETALLES_COMPROBANTES DC 
 					JOIN COMPROBANTES C ON DC.CMP_NUMERO = C.CMP_NUMERO
 					JOIN TAREAS_DETALLES_COMPROBANTES TDC ON TDC.DCO_NUMERO = DC.DCO_NUMERO 

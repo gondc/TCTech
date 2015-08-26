@@ -40,7 +40,7 @@ AND     c.pro_codigo = pr.pro_codigo
 AND     c.cmp_numero = d.cmp_numero
 AND     d.cnc_codigo = co.cnc_codigo
 AND     c.cmp_fecha_anulacion IS NULL
-AND     '2015/06' = c.piv_codigo
+AND     :P84_PIV_CODIGO = c.piv_codigo
 AND     t.tcm_libro_iva_compras = 'S'
 GROUP BY c.cmp_numero_legal,
          c.cmp_numero,
