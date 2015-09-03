@@ -62,7 +62,8 @@ begin
 			if :new.dta_rollout_manager <> :old.dta_rollout_manager then
 				update TareasComprobantes set rollout_manager = :new.dta_rollout_manager where numero = :old.trs_id;
 			end if;
-			if :new.coc_numero <> :old.coc_numero then
+			if :new.coc_numero <> :old.coc_numero or (:old.coc_numero is null and :new.coc_numero is not null) or
+			(:new.coc_numero is null and :old.coc_numero is not null) then
 				if :new.coc_numero is not null then
 					SELECT COC_NOMBRE||'-'||COC_APELLIDO into clientRespVar
 						FROM   contactos_clientes coc WHERE  :new.coc_numero = coc.coc_numero;
