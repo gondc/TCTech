@@ -24,9 +24,6 @@ begin
 			update TareasComprobantes set recepcion = '<img src="/i/Fndokay1.gif" alt="">' where numero = :new.trs_id;
 		when gcmVar = 'F' and cliProVar = 'C' then
 			update TareasComprobantes set facturas = '<img src="/i/Fndokay1.gif" alt="">' where numero = :new.trs_id;
-		when gcmVar = 'RC' and cliProVar = 'C' then
-			--Arreglar esto
-			update TareasComprobantes set recibos = '<img src="/i/Fndokay1.gif" alt="">' where numero = :new.trs_id;
 		when (gcmVar = 'F' and cliProVar = 'P') or gcmVar = 'GF' then
 			update TareasComprobantes set gastos = '<img src="/i/Fndokay1.gif" alt="">' where numero = :new.trs_id;
 	end case;
