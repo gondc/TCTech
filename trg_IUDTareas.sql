@@ -27,12 +27,12 @@ begin
 				etapa, concepto, trs_id, compras, recepcion, facturas, recibos, gastos, evaluaciones, ordenativos, compras_con, 
 				facturas_con, recibos_con, pry_id) values (:new.trs_id, proyectoVar, estadoVar, :new.trs_fecha_solicitud, 
 				:new.trs_fecha_creacion, :new.trs_fecha_inicio, :new.trs_fecha_fin, :new.usr_codigo, :new.trs_titulo, 
-				tareaPadreVar, etapaVar, conceptoVar, :new.trs_id, '<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', 
-				'<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', '<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', 
-				'<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', '<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', 
-				'<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', '<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', 
-				'<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', '<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', 
-				'<img src="#IMAGE_PREFIX#FNDCANCE.gif" alt="">', :new.pry_id);
+				tareaPadreVar, etapaVar, conceptoVar, :new.trs_id, '<img src="/i/FNDCANCE.gif" alt="">', 
+				'<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/FNDCANCE.gif" alt="">', 
+				'<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/FNDCANCE.gif" alt="">', 
+				'<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/FNDCANCE.gif" alt="">', 
+				'<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/FNDCANCE.gif" alt="">', 
+				'<img src="/i/FNDCANCE.gif" alt="">', :new.pry_id);
 		when deleting then
 			delete from TareasComprobantes where numero = :old.trs_id;
 		when updating then
@@ -87,7 +87,6 @@ begin
 					SELECT etp_nombre into etapaVar FROM etapas_proyectos ep WHERE  ep.etp_id = :new.etp_id AND :new.pry_id = ep.pry_id;
 				end if;		
 				update TareasComprobantes set etapa = etapaVar where numero = :old.trs_id;
-			end if;
-			apex_application.g_print_success_message := mensaje;
+			end if;			
 	end case;
 end trg_IUDTareas;

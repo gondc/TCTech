@@ -20,5 +20,8 @@ begin
 	if gcmVar = 'RC' and cliProVar = 'C' then
 		update TareasComprobantes set recibos = '<img src="/i/Fndokay1.gif" alt="">' where numero in (select trs_id
 			from tareas_detalles_comprobantes where cmp_numero = :new.cmp_numero_cancelado);
+	elsif gcmVar = 'RC' and cliProVar = 'P' then
+		update	TareasComprobantes set Recibos_con = '<img src="/i/Fndokay1.gif" alt="">'
+			where numero in (select trs_id from relaciones_det_ord_det_comp where cmp_numero = :new.cmp_numero_cancelado);
 	end if;
 end trg_IAplicaciones_Comprobantes;
