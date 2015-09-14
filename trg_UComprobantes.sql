@@ -40,10 +40,19 @@ begin
 			update TareasComprobantes set compras = DECODE(pkg_tracking.fnc_verifica_comp_tarea_count(numero,'M','C') - 1,0,
 				'<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/Fndokay1.gif" alt="">') 
 				where numero in (select trs_id from tareas_detalles_comprobantes where cmp_numero = :old.cmp_numero);
-		when gcmVar = 'RCP' and cliProVar = 'C' then
-			update TareasComprobantes set recepcion = DECODE(pkg_tracking.fnc_verifica_comp_tarea_count(numero,'RCP','C') - 1,0,
-				'<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/Fndokay1.gif" alt="">') 
-				where numero in (select trs_id from tareas_detalles_comprobantes where cmp_numero = :old.cmp_numero);
+		when gcmVar = 'RCP' and cliProVar = 'C' then		
+			update TareasComprobantes t set recepcion = (select case
+																					when cant_recepcion - 1 = 0 then 
+																						'<img src="/i/FNDCANCE.gif" alt="">'
+																					when cant_recepcion - 1 > 0 then
+																						'<img src="/i/Fndokay1.gif" alt="">'
+																					end
+																					from TareasComprobantes where numero = t.numero),
+				cant_recepcion = (select cant_recepcion - 1 from TareasComprobantes where numero = t.numero)
+				where numero in (select trs_id from tareas_detalles_comprobantes  where cmp_numero = :old.cmp_numero);
+			-- update TareasComprobantes set recepcion = DECODE(pkg_tracking.fnc_verifica_comp_tarea_count(numero,'RCP','C') - 1,0,
+				-- '<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/Fndokay1.gif" alt="">') 
+				-- where numero in (select trs_id from tareas_detalles_comprobantes where cmp_numero = :old.cmp_numero);
 		when gcmVar = 'F' and cliProVar = 'C' then
 			update TareasComprobantes set facturas = DECODE(pkg_tracking.fnc_verifica_comp_tarea_count(numero,'F','C') - 1,0,
 				'<img src="/i/FNDCANCE.gif" alt="">', '<img src="/i/Fndokay1.gif" alt="">') 
