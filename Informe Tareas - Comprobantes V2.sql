@@ -45,7 +45,14 @@ SELECT Numero,
        Recibos_con,
       OC_cliente "O.C. Cliente",
       pos "Pos.",
-        Proveedor
+       (SELECT pro_razon_social
+       FROM   proveedores p,
+              ordenativos o,
+              detalles_ordenativos do
+       WHERE  TareasComprobantes.numero = do.trs_id
+       AND    do.ord_id = o.ord_id
+       AND    p.pro_codigo = o.pro_codigo
+       AND    ROWNUM = 1) Proveedor
 FROM   TareasComprobantes
 WHERE  PKG_TRACKING.fnc_proyecto_asignado(pry_id,:USUARIO) = 1
 AND   ((:P32_CONSULTA IN ('Sin OC','Con OC','Con OC y RCP') AND trs_id IN (SELECT t.trs_id
@@ -81,7 +88,9 @@ AND   ((:P32_CONSULTA IN ('Sin OC','Con OC','Con OC y RCP') AND trs_id IN (SELEC
                          AND    tcm.tcm_codigo = c.tcm_codigo
                          AND    d.cca_codigo = c.cca_codigo
                          AND    d.dcc_dias = DECODE(:P32_CONSULTA,'Facturado 7 dias',7,'Facturado 30 dias',30)
-                         AND    TO_CHAR(cmp_fecha_emision,'MONTH') = :P32_MES))
+                         AND    TO_CHAR(cmp_fecha_emision,'MONTH') = :P32_MES)) OR (:P32_CONSULTA = 'CAO' AND 
+						 TO_CHAR(F_Inicio,'YYYY') = :P32_ANO AND TO_CHAR(F_Inicio,'MONTH') = :P32_MES AND Estado = 'CONFECCION CAO'
+						 and Facturable = 'Si')
        OR :P32_CONSULTA IS NULL)
 and Proyecto like '%' || :P32_PROYECTOS
 ORDER BY Numero DESC

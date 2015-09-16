@@ -9,12 +9,7 @@ SELECT  c.cmp_fecha_emision "Fecha",
          WHERE  cnc.cnc_codigo = d1.cnc_codigo
          AND    ROWNUM = 1
          AND    cnc.gco_codigo = 'CMP'
-         AND    d1.cmp_numero = c.cmp_numero
-         AND    dco_importe = (SELECT MAX(dco_importe)
-                               FROM   detalles_comprobantes d2
-                               WHERE  d2.cmp_numero = c.cmp_numero
-                               AND    d2.cnc_codigo <> pkg_consultas.fnc_par_valor(e_par_tipo => 'CNC',
-                                                       e_par_codigo => 'CONCEPTOS_NO_GRAVADOS')))"Concepto",
+         AND    d1.cmp_numero = c.cmp_numero)"Concepto",
        (SELECT prv_descripcion
         FROM   domicilios dom,
                provincias prv

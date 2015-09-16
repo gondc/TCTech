@@ -141,7 +141,9 @@ AND   ((:P32_CONSULTA IN ('Sin OC','Con OC','Con OC y RCP') AND trs_id IN (SELEC
                          AND    tcm.tcm_codigo = c.tcm_codigo
                          AND    d.cca_codigo = c.cca_codigo
                          AND    d.dcc_dias = DECODE(:P32_CONSULTA,'Facturado 7 dias',7,'Facturado 30 dias',30)
-                         AND    TO_CHAR(cmp_fecha_emision,'MONTH') = :P32_MES))
+                         AND    TO_CHAR(cmp_fecha_emision,'MONTH') = :P32_MES)) OR (:P32_CONSULTA = 'CAO' AND 
+						 TO_CHAR("F. Inicio",'YYYY') = :P32_ANO AND TO_CHAR("F. Inicio",'MONTH') = :P32_MES AND trs_estado = 'CAO'
+						 and dta_facturable = 'S')
        OR :P32_CONSULTA IS NULL)
 and "Proyecto" like '%' || :P32_PROYECTOS
 ORDER BY "Numero" DESC
