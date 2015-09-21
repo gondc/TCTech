@@ -5,7 +5,7 @@ create or replace trigger trg_UComprobantes
 declare
 	gcmVar varchar2(10);
 	cliProVar varchar2(2);
-	PRAGMA AUTONOMOUS_TRANSACTION;
+	-- PRAGMA AUTONOMOUS_TRANSACTION;
 	cmpCanceladoVar number;
 begin
 	select gcm_codigo into gcmVar from tipos_comprobantes tc where tc.tcm_codigo = :old.tcm_codigo;
@@ -36,7 +36,10 @@ begin
 																						'<img src="/i/Fndokay1.gif" alt="">'
 																					end
 																					from TareasComprobantes where numero = t.numero), 
-				cant_facturas_con = (select cant_facturas_con - 1 from TareasComprobantes where numero = t.numero)
+				cant_facturas_con = (select cant_facturas_con - 1 from TareasComprobantes where numero = t.numero),
+				f_fact = (SELECT MAX(CMP_FECHA_EMISION) FROM   TAREAS_DETALLES_COMPROBANTES TD, COMPROBANTES C,
+								TIPOS_COMPROBANTES TC WHERE  TD.TRS_ID = t.numero AND  TD.CMP_NUMERO = C.CMP_NUMERO
+								AND    C.TCM_CODIGO = TC.TCM_CODIGO  AND  TC.GCM_CODIGO = 'F' and c.cmp_fecha_anulacion is null)
 				where numero in (select trs_id from relaciones_det_ord_det_comp where cmp_numero = :old.cmp_numero);
 		when gcmVar = 'RC' then
 			select cmp_numero_cancelado into cmpCanceladoVar from aplicaciones_comprobantes 
@@ -85,7 +88,10 @@ begin
 																						'<img src="/i/Fndokay1.gif" alt="">'
 																					end
 																					from TareasComprobantes where numero = t.numero),
-				cant_facturas = (select cant_facturas - 1 from TareasComprobantes where numero = t.numero) 
+				cant_facturas = (select cant_facturas - 1 from TareasComprobantes where numero = t.numero),
+				f_fact = (SELECT MAX(CMP_FECHA_EMISION) FROM   TAREAS_DETALLES_COMPROBANTES TD, COMPROBANTES C,
+								TIPOS_COMPROBANTES TC WHERE  TD.TRS_ID = t.numero AND  TD.CMP_NUMERO = C.CMP_NUMERO
+								AND    C.TCM_CODIGO = TC.TCM_CODIGO  AND  TC.GCM_CODIGO = 'F' and c.cmp_fecha_anulacion is null)
 				where numero in (select trs_id from tareas_detalles_comprobantes where cmp_numero = :old.cmp_numero);
 		when (gcmVar = 'F' and cliProVar = 'P') or gcmVar = 'GF' then
 			update TareasComprobantes t set gastos =  (select case
@@ -112,6 +118,10 @@ begin
 		else
 			null;
 	end case;
-	commit;
+	if :old.tcm_codigo = 'OCC' then
+		update TareasComprobantes  set saldo_occ = null  where numero in (SELECT trs_id FROM DETALLES_COMPROBANTES DC
+			where :old.cmp_NUMERO = DC.cmp_NUMERO)	and facturable = 'Si';
+	end if;
+	-- commit;
 end trg_UComprobantes;
 			  
