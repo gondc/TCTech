@@ -1,6 +1,7 @@
 create or replace trigger trg_IRelDetOrdDetComp
 	after insert
 	on relaciones_det_ord_det_comp
+	
 	for each row
 declare
 	gcmVar varchar2(10);

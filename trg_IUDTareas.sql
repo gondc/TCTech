@@ -36,6 +36,10 @@ begin
 		when deleting then
 			delete from TareasComprobantes where numero = :old.trs_id;
 		when updating then
+			if :new.cnc_codigo <> :old.cnc_codigo then
+				select cnc_descripcion into conceptoVar from conceptos where  cnc_codigo = :new.cnc_codigo;
+				update TareasComprobantes set concepto = conceptoVar where numero = :old.trs_id;
+			end if;
 			if :new.trs_titulo <> :old.trs_titulo then				
 				update TareasComprobantes set titulo = :new.trs_titulo where numero = :old.trs_id;
 			end if;
