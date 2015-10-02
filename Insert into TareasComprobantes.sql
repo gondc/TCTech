@@ -109,7 +109,7 @@ insert into tctech.TareasComprobantes SELECT "Numero",
        pry_id, tctech.pkg_tracking.FNC_VERIFICA_COMP_TAREA_count(trs_id,'RCP','C'), tctech.pkg_tracking.FNC_VER_COMP_TAREA_ORD_count(trs_id, 'M'),
     tctech.pkg_tracking.fnc_ver_comp_tarea_ord_count(trs_id,'F'), 
     tctech.pkg_tracking.fnc_ver_comp_tarea_ord_count(trs_id,'RC'), 
-  tctech.pkg_tracking.FNC_VERIFICA_COMP_TAREA_count(trs_id,'M','C'),
+	tctech.pkg_tracking.FNC_VERIFICA_COMP_TAREA_count(trs_id,'M','C'),
     tctech.pkg_tracking.FNC_VERIFICA_COMP_TAREA_count(trs_id,'F','C'),
     tctech.pkg_tracking.FNC_VERIFICA_COMP_TAREA_count(trs_id,'GF') + 
     tctech.pkg_tracking.FNC_VERIFICA_COMP_TAREA_count(trs_id,'F','P'),

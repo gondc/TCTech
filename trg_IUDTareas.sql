@@ -40,7 +40,8 @@ begin
 				select cnc_descripcion into conceptoVar from conceptos where  cnc_codigo = :new.cnc_codigo;
 				update TareasComprobantes set concepto = conceptoVar where numero = :old.trs_id;
 			end if;
-			if :new.trs_titulo <> :old.trs_titulo then				
+			if :new.trs_titulo <> :old.trs_titulo or (:new.trs_titulo is not null and :old.trs_titulo is null) or
+				 (:new.trs_titulo is null and :old.trs_titulo is not null) then				
 				update TareasComprobantes set titulo = :new.trs_titulo where numero = :old.trs_id;
 			end if;
 			if :new.trs_estado <> :old.trs_estado then				
@@ -60,16 +61,20 @@ begin
 				end if;
 				update TareasComprobantes set tarea_padre = tareaPadreVar where numero = :old.trs_id;
 			end if;
-			if :new.trs_fecha_inicio <> :old.trs_fecha_inicio then
+			if :new.trs_fecha_inicio <> :old.trs_fecha_inicio or (:new.trs_fecha_inicio is not null and :old.trs_fecha_inicio is null) or
+				 (:new.trs_fecha_inicio is null and :old.trs_fecha_inicio is not null) then
 				update TareasComprobantes set f_inicio = :new.trs_fecha_inicio where numero = :old.trs_id;
 			end if;
-			if :new.trs_fecha_fin <> :old.trs_fecha_fin then
+			if :new.trs_fecha_fin <> :old.trs_fecha_fin  or (:new.trs_fecha_fin is not null and :old.trs_fecha_fin is null) or
+				 (:new.trs_fecha_fin is null and :old.trs_fecha_fin is not null) then
 				update TareasComprobantes set f_fin = :new.trs_fecha_fin where numero = :old.trs_id;
 			end if;
-			if :new.trs_fecha_creacion <> :old.trs_fecha_creacion  then
+			if :new.trs_fecha_creacion <> :old.trs_fecha_creacion  or (:new.trs_fecha_creacion is not null and :old.trs_fecha_creacion is null) or
+				 (:new.trs_fecha_creacion is null and :old.trs_fecha_creacion is not null)  then
 				update TareasComprobantes set f_creacion = :new.trs_fecha_creacion where numero = :old.trs_id;
 			end if;
-			if :new.trs_fecha_solicitud <> :old.trs_fecha_solicitud then
+			if :new.trs_fecha_solicitud <> :old.trs_fecha_solicitud or (:new.trs_fecha_solicitud is not null and :old.trs_fecha_solicitud is null) or
+				 (:new.trs_fecha_solicitud is null and :old.trs_fecha_solicitud is not null) then
 				update TareasComprobantes set f_solicitud = :new.trs_fecha_solicitud where numero = :old.trs_id;
 			end if;
 			if :new.usr_codigo <> :old.usr_codigo then

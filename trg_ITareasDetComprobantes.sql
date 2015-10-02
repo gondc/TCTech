@@ -30,7 +30,10 @@ begin
 			    AND    cmp.tcm_codigo = tcm.tcm_codigo
 			    AND    cmp.cmp_numero = dco.cmp_numero
 			    AND    dco.dco_numero = :new.dco_numero
-			    AND    tcm.tcm_origen = 'V' AND    ROWNUM = 1) where numero = :new.trs_id;
+			    AND    tcm.tcm_origen = 'V' AND    ROWNUM = 1), saldo_occ = (SELECT DCO_IMPORTE_SALDO 
+				FROM DETALLES_COMPROBANTES DC join comprobantes c on c.cmp_numero = dc.cmp_numero 
+				where :new.DCO_NUMERO = DC.DCO_NUMERO	and dc.cmp_numero = :new.cmp_numero 
+				AND C.TCM_CODIGO = 'OCC') where numero = :new.trs_id;
 		when gcmVar = 'RCP' and cliProVar = 'C' then
 			update TareasComprobantes set recepcion = '<img src="/i/Fndokay1.gif" alt="">', cant_recepcion = (select cant_recepcion + 1
 				from TareasComprobantes where numero = :new.trs_id) where numero = :new.trs_id;
@@ -47,9 +50,9 @@ begin
 		update TareasComprobantes set f_fact = (select CMP_FECHA_EMISION from comprobantes 
 			where cmp_numero = :new.cmp_numero) where numero = :new.trs_id;
 	end if;
-	update TareasComprobantes set saldo_occ = (SELECT DCO_IMPORTE_SALDO FROM DETALLES_COMPROBANTES DC 
-		join comprobantes c on c.cmp_numero = dc.cmp_numero where :new.DCO_NUMERO = DC.DCO_NUMERO
-		and dc.cmp_numero = :new.cmp_numero AND C.TCM_CODIGO = 'OCC') where numero = :new.trs_id
-		and facturable = 'Si';
+	-- update TareasComprobantes set saldo_occ = (SELECT DCO_IMPORTE_SALDO FROM DETALLES_COMPROBANTES DC 
+		-- join comprobantes c on c.cmp_numero = dc.cmp_numero where :new.DCO_NUMERO = DC.DCO_NUMERO
+		-- and dc.cmp_numero = :new.cmp_numero AND C.TCM_CODIGO = 'OCC') where numero = :new.trs_id
+		-- and facturable = 'Si';
 	-- commit;
 end trg_ITareasDetComprobantes;
