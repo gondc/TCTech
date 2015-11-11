@@ -36,33 +36,14 @@ update rentabilidadxtareas t set egreso = egreso + (select sum(dc.dco_importe)
 	detalles_comprobantes dc on r.cmp_numero = dc.cmp_numero and r.dco_numero = dc.dco_numero where c.tcm_codigo in  
 	('FLB', 'FLC', 'FLI', 'FPA', 'FPB', 'FPC', 'GF'))
 	
-	-- update en rentabilidadxtareas con prorrateo Egresos de bancos entre tareas del mes, cambiar el count tareas por count rentabilidadxtareas
-update rentabilidadxtareas r set ingreso = ingreso + (select SUM(TRUNC(cmp_importe_neto/(select count(*) from tareas t join detalles_tareas d on t.trs_id = d.trs_id 
-	where d.dta_facturable = 'S' and t.trs_estado = 'COM' and extract(month from t.trs_fecha_fin) = 
-	extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.trs_fecha_fin) = 
+	-- update en rentabilidadxtareas con prorrateo Egresos de bancos entre tareas del mes
+update rentabilidadxtareas r set ingreso = ingreso + nvl((select SUM(TRUNC(cmp_importe_neto/(select count(*) from rentabilidadxtareas t
+	where extract(month from t.fecha) = extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.fecha) =  
 	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)),2)) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
-	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and extract(month from r.fecha) = 
-	extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM r.fecha) = 
-	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(month from ce.CMP_FECHA_EMISION),
-	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)) where r.trs_id in (select distinct te.trs_id from tareas te join detalles_tareas d on te.trs_id = d.trs_id, 
-	comprobantes c join detalles_comprobantes dc 
-	on c.cmp_numero = dc.cmp_numero where  d.dta_facturable = 'S' and te.trs_estado = 'COM' and
-	c.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and extract(month from te.trs_fecha_fin) = 
-	extract(month from c.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM te.trs_fecha_fin) = 
-	EXTRACT( YEAR FROM c.CMP_FECHA_EMISION))
-	
-	update rentabilidadxtareas r set ingreso = ingreso + (select SUM(TRUNC(cmp_importe_neto/(select count(*) from rentabilidadxtareas t extract(month from t.fecha) = 
-	extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.fecha) = 
-	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)),2)) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
-	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and extract(month from r.fecha) = 
-	extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM r.fecha) = 
-	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(month from ce.CMP_FECHA_EMISION),
-	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)) where r.trs_id in (select distinct te.trs_id from tareas te join detalles_tareas d on te.trs_id = d.trs_id, 
-	comprobantes c join detalles_comprobantes dc 
-	on c.cmp_numero = dc.cmp_numero where  d.dta_facturable = 'S' and te.trs_estado = 'COM' and
-	c.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and extract(month from te.trs_fecha_fin) = 
-	extract(month from c.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM te.trs_fecha_fin) = 
-	EXTRACT( YEAR FROM c.CMP_FECHA_EMISION))
+	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0)
 
 -- Informe por zona
 select null, z.zon_descripcion, (sum(ingreso)-nvl(sum(egreso),0)),sum(ingreso),sum(egreso) from rentabilidadxtareas r join detalles_tareas t on 
@@ -71,6 +52,10 @@ select null, z.zon_descripcion, (sum(ingreso)-nvl(sum(egreso),0)),sum(ingreso),s
 -- Informe por service types
 select null, s.set_descripcion, (sum(ingreso)-nvl(sum(egreso),0)),sum(ingreso),sum(egreso) from rentabilidadxtareas r join detalles_tareas t on r.trs_id = t.trs_id 
 	join services_types s on s.set_id = t.set_id group by s.set_id, s.set_descripcion order by s.set_id
+	
+-- Informe por rollout manager
+select null, dt.dta_rollout_manager, (sum(ingreso)-nvl(sum(egreso),0)), sum(ingreso),sum(egreso) from rentabilidadxtareas r join detalles_tareas dt on dt.trs_id = r.trs_id
+	group by dt.dta_rollout_manager order by dt.dta_rollout_manager
 	
 select extract(month from c.CMP_FECHA_EMISION) "año",
 	EXTRACT(year FROM c.CMP_FECHA_EMISION) "mes", r.fecha, ingreso,(select SUM(TRUNC(cmp_importe_neto/(select count(*) from tareas t join detalles_tareas d on t.trs_id = d.trs_id 
@@ -114,6 +99,49 @@ select trs_id, r.fecha, ingreso,nvl((select SUM(TRUNC(cmp_importe_neto/(select c
 	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
 	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
 	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0)) "nuevo" from rentabilidadxtareas r order by 1
+	
+	
+
+	
+select r.trs_id, r.fecha, ingreso,(select count(*) from rentabilidadxtareas t where extract(month from t.fecha) = 
+	extract(month from r.fecha) and EXTRACT(YEAR FROM t.fecha) =  
+	EXTRACT( YEAR FROM r.fecha)) "cant",(select SUM(cmp_importe_neto) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
+	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),nvl((select SUM(TRUNC(cmp_importe_neto/(select count(*) from rentabilidadxtareas t where extract(month from t.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.fecha) =  
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)),2)) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
+	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0) "resta", (ingreso + nvl((select SUM(TRUNC(cmp_importe_neto/(select count(*) from rentabilidadxtareas t
+	where extract(month from t.fecha) = extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.fecha) =  
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)),2)) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
+	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0)) "nuevo" from rentabilidadxtareas r join tareas t on r.trs_id = t.trs_id where t.pry_id = 12 order by 1
+	
+select r.trs_id, r.fecha, ingreso,egreso,(select count(*) from rentabilidadxtareas t where extract(month from t.fecha) = 
+	extract(month from r.fecha) and EXTRACT(YEAR FROM t.fecha) =  
+	EXTRACT( YEAR FROM r.fecha)) "cant. tareas en el mes",(select SUM(cmp_importe_neto) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
+	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)) "Total EB en el mes",nvl((select SUM(TRUNC(cmp_importe_neto/(select count(*) from rentabilidadxtareas t where extract(month from t.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.fecha) =  
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)),2)) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
+	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0) "Prorrateo", (ingreso + nvl((select SUM(TRUNC(cmp_importe_neto/(select count(*) from rentabilidadxtareas t
+	where extract(month from t.fecha) = extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.fecha) =  
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)),2)) from comprobantes ce join detalles_comprobantes dc on ce.cmp_numero = dc.cmp_numero where  
+	ce.tcm_codigo = 'EB' and dc.cnc_codigo not in ('EGB', 'VIA') and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0)) "Ingreso - Prorrateo" from rentabilidadxtareas r join tareas t on r.trs_id = t.trs_id where extract(month from r.fecha) = 1  and EXTRACT(YEAR FROM r.fecha) = 2014  and t.pry_id = 13
 
 	
 	
