@@ -6,6 +6,7 @@ declare
 	gcmVar varchar2(10);
 	cliProVar varchar2(2);
 	-- PRAGMA AUTONOMOUS_TRANSACTION;
+	eb number;
 	cmpCanceladoVar number;
 begin
 	select gcm_codigo into gcmVar from tipos_comprobantes tc where tc.tcm_codigo = :old.tcm_codigo;
@@ -121,6 +122,19 @@ begin
 		update TareasComprobantes  set saldo_occ = null  where numero in (SELECT trs_id FROM DETALLES_COMPROBANTES DC
 			where :old.cmp_NUMERO = DC.cmp_NUMERO)	and facturable = 'Si';
 	end if;
+	begin
+		select 1 into eb from egresosbancosxproyectos where cmp_NUMERO = :old.cmp_NUMERO and rownum = 1;
+		update rentabilidadxtareas r set ingreso = ingreso + trunc((-1)*(:old.cmp_importe_neto)/(select count(*) from rentabilidadxtareas eb join tareas t on eb.trs_id = t.trs_id where 
+			t.pry_id in (select pry_id from egresosbancosxproyectos where cmp_NUMERO = :old.cmp_NUMERO) and extract(month from eb.fecha) = 
+			extract(month from :old.CMP_FECHA_EMISION) 
+			and EXTRACT(YEAR FROM eb.fecha) =  EXTRACT( YEAR FROM :old.CMP_FECHA_EMISION)),2) where extract(month from r.fecha) = 
+			extract(month from :old.CMP_FECHA_EMISION) 
+			and EXTRACT(YEAR FROM r.fecha) =  EXTRACT( YEAR FROM :old.CMP_FECHA_EMISION);
+		delete from egresosbancosxproyectos where cmp_NUMERO = :old.cmp_NUMERO;
+	exception
+		when no_data_found then
+			null;
+	end;
 	-- commit;
 end trg_UComprobantes;
 			  
