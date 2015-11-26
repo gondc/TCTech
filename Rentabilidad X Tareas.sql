@@ -143,6 +143,15 @@ select r.trs_id, r.fecha, ingreso,egreso,(select count(*) from rentabilidadxtare
 	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
 	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0)) "Ingreso - Prorrateo" from rentabilidadxtareas r join tareas t on r.trs_id = t.trs_id where extract(month from r.fecha) = 1  and EXTRACT(YEAR FROM r.fecha) = 2014  and t.pry_id = 13
 
+update rentabilidadxtareas r set ingreso = ingreso + nvl((select SUM(TRUNC(cmp_importe_neto/(select count(*) from rentabilidadxtareas t join tareas ta on t.trs_id = ta.trs_id
+	where ta.pry_id = :new.pry_id and extract(month from t.fecha) = extract(month from ce.CMP_FECHA_EMISION) and EXTRACT(YEAR FROM t.fecha) =  
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION)),2)) from comprobantes ce where ce.cmp_numero = :new.cmp_numero and
+	ce.cmp_fecha_anulacion is null and  extract(month from r.fecha) = 
+	extract(month from ce.CMP_FECHA_EMISION)  and EXTRACT(YEAR FROM r.fecha) = 
+	EXTRACT( YEAR FROM ce.CMP_FECHA_EMISION) group by extract(year from ce.CMP_FECHA_EMISION),
+	EXTRACT(month FROM ce.CMP_FECHA_EMISION)),0)
+	
+
 	
 	
 	
