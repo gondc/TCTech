@@ -124,7 +124,7 @@ begin
 	end if;
 	begin
 		select 1 into eb from egresosbancosxproyectos where cmp_NUMERO = :old.cmp_NUMERO and rownum = 1;
-		update rentabilidadxtareas r set ingreso = ingreso + trunc((-1)*(:old.cmp_importe_neto)/(select count(*) from rentabilidadxtareas eb join tareas t on eb.trs_id = t.trs_id where 
+		update rentabilidadxtareas r set ingreso = nvl(egreso,0) + trunc((:old.cmp_importe_neto)/(select count(*) from rentabilidadxtareas eb join tareas t on eb.trs_id = t.trs_id where 
 			t.pry_id in (select pry_id from egresosbancosxproyectos where cmp_NUMERO = :old.cmp_NUMERO) and extract(month from eb.fecha) = 
 			extract(month from :old.CMP_FECHA_EMISION) 
 			and EXTRACT(YEAR FROM eb.fecha) =  EXTRACT( YEAR FROM :old.CMP_FECHA_EMISION)),2) where extract(month from r.fecha) = 
