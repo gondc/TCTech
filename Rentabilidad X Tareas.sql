@@ -48,13 +48,19 @@ update rentabilidadxtareas r set ingreso = ingreso + nvl((select SUM(TRUNC(cmp_i
 -- Informe por zona
 select null, z.zon_descripcion, (sum(ingreso)-nvl(sum(egreso),0)),sum(ingreso),sum(egreso) from rentabilidadxtareas r join detalles_tareas t on 
 	r.trs_id = t.trs_id join zonas z on z.zon_id = t.zon_id group by z.zon_id, z.zon_descripcion order by z.zon_id
+	
+-- Informe por proyectos	
+select null, p.pry_nombre, (sum(nvl(ingreso,0))-sum(nvl(egreso,0))) from rentabilidadxtareas r join tareas t on 
+	r.trs_id = t.trs_id join proyectos p on t.pry_id = p.pry_id where extract(month from r.fecha) = LTRIM(TO_CHAR(TO_DATE(:P93_fecha), 'MM'), '0')
+	and EXTRACT(YEAR FROM r.fecha) = TO_CHAR(TO_DATE(:P93_fecha), 'YYYY') group by p.pry_id , p.pry_nombre order by p.pry_nombre
 
 -- Informe por service types
-select null, s.set_descripcion, (sum(ingreso)-nvl(sum(egreso),0)),sum(ingreso),sum(egreso) from rentabilidadxtareas r join detalles_tareas t on r.trs_id = t.trs_id 
-	join services_types s on s.set_id = t.set_id group by s.set_id, s.set_descripcion order by s.set_id
+select null, s.set_descripcion, (sum(ingreso)-nvl(sum(egreso),0)) from rentabilidadxtareas r join detalles_tareas t on r.trs_id = t.trs_id 
+	join services_types s on s.set_id = t.set_id  where extract(month from r.fecha) = TO_CHAR(TO_DATE(:P93_fecha), 'MM')
+	and EXTRACT(YEAR FROM r.fecha) = TO_CHAR(TO_DATE(:P93_fecha), 'YYYY') group by s.set_id, s.set_descripcion order by s.set_id
 	
 -- Informe por rollout manager
-select null, dt.dta_rollout_manager, (sum(ingreso)-nvl(sum(egreso),0)), sum(ingreso),sum(egreso) from rentabilidadxtareas r join detalles_tareas dt on dt.trs_id = r.trs_id
+select null, dt.dta_rollout_manager, (sum(nvl(ingreso,0))-sum(nvl(egreso,0)), sum(ingreso),sum(egreso) from rentabilidadxtareas r join detalles_tareas dt on dt.trs_id = r.trs_id
 	group by dt.dta_rollout_manager order by dt.dta_rollout_manager
 	
 select extract(month from c.CMP_FECHA_EMISION) "año",
