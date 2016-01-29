@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE PRC_RETRABAJO(I_TRS_ID IN NUMBER, paramObs in varchar2, paramUSR in varchar2) IS
+create or replace PROCEDURE PRC_RETRABAJO(I_TRS_ID IN NUMBER, paramObs in varchar2, paramUSR in varchar2) IS
 
 V_TRS_ID TAREAS.TRS_ID%TYPE := NULL;
 V_OTA_ID OBSERVACIONES_TAREAS.OTA_ID%TYPE;
@@ -23,7 +23,7 @@ BEGIN
                       TRS_FECHA_SOLICITUD)
                SELECT V_TRS_ID,
                       SYSDATE,
-                      'Retrabajo',
+                      NULL,
                       (SELECT EST_CODIGO
                        FROM   ESTADOS
                        WHERE  EST_INICIAL = 'S'
@@ -63,7 +63,7 @@ BEGIN
                                DTA_SITE_B,
                                V_TRS_ID,
                                ZON_ID,
-                               set_id,
+                               78,
                                DTA_TR,
                                DTA_AVI,
                                DTA_WHO_ORDER,
@@ -73,10 +73,10 @@ BEGIN
                                'N'
                          FROM  DETALLES_TAREAS
                          WHERE TRS_ID = I_TRS_ID;
-						 
-	 insert into observaciones_tareas (OTA_ID, OTA_FECHA_CREACION, OTA_DESCRIPCION,TRS_ID, USR_CODIGO) values (V_OTA_ID, SYSDATE, paramObs, V_TRS_ID, paramUSR);
+                         
+     insert into observaciones_tareas (OTA_ID, OTA_FECHA_CREACION, OTA_DESCRIPCION,TRS_ID, USR_CODIGO) values (V_OTA_ID, SYSDATE, paramObs, V_TRS_ID, paramUSR);
 
 
 
 
-END;
+END;​
